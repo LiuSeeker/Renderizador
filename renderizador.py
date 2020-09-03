@@ -11,7 +11,7 @@ def polypoint2D(point, color):
     """ Função usada para renderizar Polypoint2D. """
     
     i = 0
-    while i < len(point):
+    while i < len(point): #(percorre de 2 em 2 coordenadas (ponto)
         split_h = False
         split_v = False
 
@@ -24,7 +24,7 @@ def polypoint2D(point, color):
             split_v = True
             n_points *= 2
         
-        # Preenche os pixels (percorre de 2 em 2 coordenadas (ponto))
+        # Preenche os pixels
         for k in range(n_points):
             gpu.GPU.set_pixel(int(point[i]), int(point[i+1]), int(255/n_points), 0, 0)
             if split_h:
