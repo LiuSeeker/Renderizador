@@ -20,24 +20,27 @@ def polypoint2D(point, color):
     while i < len(point):
         split_h = False
         split_v = False
+
+        # Conta se ta entre pixels
         n_points = 1
-        if point[i] % 1 == 0:
+        if point[i] % 1 == 0: #horizontal (x)
             split_h = True
             n_points *= 2
-        if point[i+1] % 1 == 0:
+        if point[i+1] % 1 == 0: #vertical (y)
             split_v = True
             n_points *= 2
+        
+        # Preenche os pixels (percorre de 2 em 2 coordenadas (ponto))
         for k in range(n_points):
+            gpu.GPU.set_pixel(int(point[i]), int(point[i+1]), int(255/n_points), 0, 0)
             if split_h:
                 gpu.GPU.set_pixel(int(point[i])-1, int(point[i+1]), int(255/n_points), 0, 0)
-            gpu.GPU.set_pixel(int(point[i]), int(point[i+1]), int(255/n_points), 0, 0)
             if split_v:
                 gpu.GPU.set_pixel(int(point[i]), int(point[i+1])-1, int(255/n_points), 0, 0)
             if split_h and split_v:
                 gpu.GPU.set_pixel(int(point[i])-1, int(point[i+1])-1, int(255/n_points), 0, 0)
         i += 2
     #gpu.GPU.set_pixel(3, 1, 255, 0, 0) # altera um pixel da imagem
-    #print(point)
     # cuidado com as cores, o X3D especifica de (0,1) e o Framebuffer de (0,255)
 
 def polyline2D(lineSegments, color):
