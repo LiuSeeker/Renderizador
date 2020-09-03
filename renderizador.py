@@ -15,7 +15,29 @@ import gpu
 
 def polypoint2D(point, color):
     """ Função usada para renderizar Polypoint2D. """
-    gpu.GPU.set_pixel(3, 1, 255, 0, 0) # altera um pixel da imagem
+    
+    i = 0
+    while i < len(point):
+        split_h = False
+        split_v = False
+        n_points = 1
+        if point[i] % 1 == 0:
+            split_h = True
+            n_points *= 2
+        if point[i+1] % 1 == 0:
+            split_v = True
+            n_points *= 2
+        for k in range(n_points):
+            if split_h:
+                gpu.GPU.set_pixel(int(point[i])-1, int(point[i+1]), int(255/n_points), 0, 0)
+            gpu.GPU.set_pixel(int(point[i]), int(point[i+1]), int(255/n_points), 0, 0)
+            if split_v:
+                gpu.GPU.set_pixel(int(point[i]), int(point[i+1])-1, int(255/n_points), 0, 0)
+            if split_h and split_v:
+                gpu.GPU.set_pixel(int(point[i])-1, int(point[i+1])-1, int(255/n_points), 0, 0)
+        i += 2
+    #gpu.GPU.set_pixel(3, 1, 255, 0, 0) # altera um pixel da imagem
+    #print(point)
     # cuidado com as cores, o X3D especifica de (0,1) e o Framebuffer de (0,255)
 
 def polyline2D(lineSegments, color):
