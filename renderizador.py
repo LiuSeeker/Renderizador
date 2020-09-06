@@ -15,12 +15,14 @@ import gpu
 
 def polypoint2D(point, color):
     """ Função usada para renderizar Polypoint2D. """
+   
     
     i = 0
     while i < len(point): #(percorre de 2 em 2 coordenadas (ponto)
         split_h = False
         split_v = False
-
+        
+    
         # Conta se ta entre pixels
         n_points = 1
         if point[i] % 1 == 0: #horizontal (x)
@@ -45,9 +47,91 @@ def polypoint2D(point, color):
 
 def polyline2D(lineSegments, color):
     """ Função usada para renderizar Polyline2D. """
+
+    """plotLineLow(x0,y0, x1,y1)
+    dx = x1 - x0
+    dy = y1 - y0
+    yi = 1
+    if dy < 0
+        yi = -1
+        dy = -dy
+    end if
+    D = 2*dy - dx
+    y = y0
+
+    for x from x0 to x1
+        plot(x, y)
+        if D > 0
+               y = y + yi
+               D = D - 2*dx
+        end if
+        D = D + 2*dy
+ """
+    x0=0
+    x1=0
+    
+    if(lineSegments[0]>lineSegments[2]):
+        x0=lineSegments[2]
+        x1=lineSegments[0]
+        y0=lineSegments[3]
+        y1=lineSegments[1]
+    else:
+        x0=lineSegments[0]
+        x1=lineSegments[2]
+        y0=lineSegments[1]
+        y1=lineSegments[3]
+    
+
+
+
+
+    
+    print(x0,y0)
+    print(x1,y1)
+
+    dx = abs(x1 - x0)
+    dy = abs(y1 - y0)
+    x, y = x0, y0
+    sx = -1 if x0 > x1 else 1
+    sy = -1 if y0 > y1 else 1
+
+    
+    if dx > dy:
+        err = dx / 2.0
+        while x <= x1:
+
+            polypoint2D([x,y],color)
+            err -= dy
+            if err < 0:
+                y += sy
+                err += dx
+            x += sx
+    else:
+        err = dy / 2.0
+        print(y,y1,"YYYYYYYY")
+        if(y <= y1):
+            while y <= y1-1:
+                polypoint2D([x,y],color)
+                err -= dx
+                if err < 0:
+                    x += sx
+                    err += dy
+                y += sy 
+        else:
+            while y >= y1-1:
+                polypoint2D([x,y],color)
+                err -= dx
+                if err < 0:
+                    x += sx
+                    err += dy
+                y -= 1 
+
+    polypoint2D([x,y],color)
+        
+    print("/////////////////")
+
     x = gpu.GPU.width//2
     y = gpu.GPU.height//2
-    gpu.GPU.set_pixel(x, y, 255, 0, 0) # altera um pixel da imagem
 
 def triangleSet2D(vertices, color):
     """ Função usada para renderizar TriangleSet2D. """
@@ -60,7 +144,7 @@ if __name__ == '__main__':
     
     width = LARGURA
     height = ALTURA
-    x3d_file = "exemplo1.x3d"
+    x3d_file = "exemplo2.x3d"
     image_file = "tela.png"
 
     # Tratando entrada de parâmetro
