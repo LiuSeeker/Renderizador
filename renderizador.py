@@ -42,25 +42,6 @@ def polypoint2D(point, color):
 def polyline2D(lineSegments, color):
     """ Função usada para renderizar Polyline2D. """
 
-    """plotLineLow(x0,y0, x1,y1)
-    dx = x1 - x0
-    dy = y1 - y0
-    yi = 1
-    if dy < 0
-        yi = -1
-        dy = -dy
-    end if
-    D = 2*dy - dx
-    y = y0
-
-    for x from x0 to x1
-        plot(x, y)
-        if D > 0
-               y = y + yi
-               D = D - 2*dx
-        end if
-        D = D + 2*dy
- """
     x0=0
     x1=0
     
@@ -89,11 +70,9 @@ def polyline2D(lineSegments, color):
     sx = -1 if x0 > x1 else 1
     sy = -1 if y0 > y1 else 1
 
-    
     if dx > dy:
         err = dx / 2.0
         while x <= x1:
-
             polypoint2D([x,y],color)
             err -= dy
             if err < 0:
@@ -102,7 +81,6 @@ def polyline2D(lineSegments, color):
             x += sx
     else:
         err = dy / 2.0
-        print(y,y1,"YYYYYYYY")
         if(y <= y1):
             while y <= y1-1:
                 polypoint2D([x,y],color)
