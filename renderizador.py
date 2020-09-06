@@ -61,12 +61,13 @@ def polyline2D(lineSegments, color):
 
     dx = abs(x1 - x0)
     dy = abs(y1 - y0)
-    x, y = x0, int(y0)
+    x, y = x0, y0
     sx = -1 if x0 > x1 else 1
     sy = -1 if y0 > y1 else 1
 
     if dx > dy:
         err = dx / 2.0
+        print("aaa")
         while x <= x1:
             polypoint2D([x,y],color)
             err -= dy
@@ -75,6 +76,7 @@ def polyline2D(lineSegments, color):
                 err += dx
             x += sx
     else:
+        print("bb")
         err = dy / 2.0
         while int(y) != int(y1):
             polypoint2D([x,y],color)
