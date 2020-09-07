@@ -82,7 +82,7 @@ def polyline2D(lineSegments, color):
                 err += dx
             x += sx
     else:
-        print("bb")
+        y=int(y0)
         err = dy / 2.0
         while int(y) != int(y1):
             polypoint2D([x,y],color)
@@ -101,16 +101,66 @@ def polyline2D(lineSegments, color):
 
 def triangleSet2D(vertices, color):
     """ Função usada para renderizar TriangleSet2D. """
-    gpu.GPU.set_pixel(24, 8, 255, 255, 0) # altera um pixel da imagem
+    
+    x0=vertices[0]
+    y0=vertices[1]
+    x1=vertices[2]
+    y1=vertices[3]
+    x2=vertices[4]
+    y2=vertices[5]
+
+    print(x0,y0)
+    print(x1,y1)
+    print(x2,y2)
+
+
+    Xl=[x0,x1,x2]
+    Xl=sorted(Xl)
+    Yl=[y0,y1,y2]
+    Yl=sorted(Yl)
+
+    linha0=[x1-x0,y1-y0]
+    linha1=[x2-x1,y2-y1]
+    linha2=[x0-x2,y0-y2]
+
+    print(linha0)
+
+    N0=[y1-y0,-(x1-x0)]
+    N1=[y2-y1,-(x2-x1)]
+    N2=[y0-y2,-(x0-x2)]
+
+
+
+    for x in range(int(Xl[0]),int(Xl[2])):
+        for y in range(int(Yl[0]),int(Yl[2])+1):
+
+            V0=[x-x0,y-y0]
+            V1=[x-x1,y-y1]
+            V2=[x-x2,y-y2]
+
+            L0=V0[0]*N0[0]+V0[1]*N0[1]
+            L1=V1[0]*N1[0]+V1[1]*N1[1]
+            L2=V2[0]*N2[0]+V2[1]*N2[1]
+
+            if(L0>0 and L1>0 and L2>0):
+                polypoint2D([x,y],color)
+
+
+
+
+
+    print("/////////////////")
 
 LARGURA = 30
 ALTURA = 20
+
+   
 
 if __name__ == '__main__':
     
     width = LARGURA
     height = ALTURA
-    x3d_file = "exemplo2.x3d"
+    x3d_file = "exemplo3.x3d"
     image_file = "tela.png"
 
     # Tratando entrada de parâmetro
