@@ -7,6 +7,11 @@ import x3d          # Faz a leitura do arquivo X3D, gera o grafo de cena e faz t
 import interface    # Janela de visualização baseada no Matplotlib
 import gpu          # Simula os recursos de uma GPU
 
+import numpy as np
+from math import sin, cos
+
+TRANSFORM_STACK = []
+
 def polypoint2D(point, color):
     """ Função usada para renderizar Polypoint2D. """
    
@@ -147,22 +152,58 @@ def triangleSet2D(vertices, color):
 
 
 def triangleSet(point, color):
+    # 2o 
     """ Função usada para renderizar TriangleSet. """
     print("TriangleSet : pontos = {0}".format(point)) # imprime no terminal pontos
 
 def viewpoint(position, orientation, fieldOfView):
+    # 1o
     """ Função usada para renderizar (na verdade coletar os dados) de Viewpoint. """
-    print("Viewpoint : position = {0}, orientation = {0}, fieldOfView = {0}".format(position, orientation, fieldOfView)) # imprime no terminal
+    print("Viewpoint : position = {0}, orientation = {1}, fieldOfView = {2}".format(position, orientation, fieldOfView)) # imprime no terminal
 
 def transform(translation, scale, rotation):
+    # 1o
     """ Função usada para renderizar (na verdade coletar os dados) de Transform. """
-    print("Transform : ", end = '')
-    if translation:
-        print("translation = {0} ".format(translation), end = '') # imprime no terminal
-    if scale:
-        print("scale = {0} ".format(scale), end = '') # imprime no terminal
-    if rotation:
-        print("rotation = {0} ".format(rotation), end = '') # imprime no terminal
+    #print("Transform : ", end = '')
+    print("Transform call ", end="")
+    
+    if translation != [0,0,0]:
+        print("translation")
+        #print("translation = {0} ".format(translation), end = '') # imprime no terminal
+        translation_matrix = np.array([[1, 0, 0, translation[0]],
+                                       [0, 1, 0, translation[1]],
+                                       [0, 0, 1, translation[2]],
+                                       [0, 0, 0, 1]])
+        TRANSFORM_STACK.append(translation_matrix)
+        
+
+    if scale != [1,1,1]:
+        print("scale")
+        #print("scale = {0} ".format(scale), end = '') # imprime no terminal
+        scale_matrix = np.array([[scale[0], 0, 0, 0],
+                                 [0, scale[1], 0, 0],
+                                 [0, 0, scale[2], 0],
+                                 [0, 0, 0, 1]])
+        TRANSFORM_STACK.append(scale_matrix)
+
+    if rotation != [0,0,1,0]:
+        print("rotation")
+        angle = rotation[3]
+        #print("rotation = {0} ".format(rotation), end = '') # imprime no terminal
+        if rotation[0]:
+            rotation_matrix = np.array([[1, 0, 0],
+                                       [0, cos(angle), -sin(angle)],
+                                       [0, sin(angle), cos(angle)]])
+        elif rotation[1]:
+            rotation_matrix = np.array([[cos(angle), 0, sin(angle)],
+                                       [0, 1, 0],
+                                       [-sin(angle), 0, cos(angle)]])
+        elif rotation[2]:
+            rotation_matrix = np.array([[cos(angle), -sin(angle), 0],
+                                       [sin(angle), cos(angle), 0],
+                                       [0, 0, 1]])
+        TRANSFORM_STACK.append(rotation_matrix)
+
     print("")
 
 def triangleStripSet(point, stripCount, color):
@@ -239,3 +280,7 @@ if __name__ == '__main__':
     else:
         window.image_saver = gpu.GPU.save_image # pasa a função para salvar imagens
         window.preview(gpu.GPU._frame_buffer) # mostra janela de visualização
+
+    for m in TRANSFORM_STACK:
+        print(m)
+        print("")
