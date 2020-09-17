@@ -59,6 +59,7 @@ def polyline2D(lineSegments, color):
     #print(x0,y0)
     #print(x1,y1)
 
+
     dx = abs(x1 - x0)
     dy = abs(y1 - y0)
     x, y = x0, y0
@@ -68,6 +69,7 @@ def polyline2D(lineSegments, color):
     if dx > dy:
         err = dx / 2.0
         #print("aaa")
+
         while x <= x1:
             polypoint2D([x,y],color)
             err -= dy
@@ -90,6 +92,7 @@ def polyline2D(lineSegments, color):
         
     #print("/////////////////")
 
+
     x = gpu.GPU.width//2
     y = gpu.GPU.height//2
 
@@ -108,6 +111,7 @@ def triangleSet2D(vertices, color):
     #print(x2,y2)
 
 
+
     Xl=[x0,x1,x2]
     Xl=sorted(Xl)
     Yl=[y0,y1,y2]
@@ -116,8 +120,8 @@ def triangleSet2D(vertices, color):
     linha0=[x1-x0,y1-y0]
     linha1=[x2-x1,y2-y1]
     linha2=[x0-x2,y0-y2]
-
     #print(linha0)
+
 
     N0=[y1-y0,-(x1-x0)]
     N1=[y2-y1,-(x2-x1)]
@@ -139,11 +143,8 @@ def triangleSet2D(vertices, color):
             if(L0>0 and L1>0 and L2>0):
                 polypoint2D([x,y],color)
 
-
-
-
-
     #print("/////////////////")
+
 
 def triangleSet(point, color):
     """ Função usada para renderizar TriangleSet. """
