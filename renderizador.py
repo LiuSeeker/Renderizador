@@ -8,9 +8,9 @@ import interface    # Janela de visualização baseada no Matplotlib
 import gpu          # Simula os recursos de uma GPU
 
 import numpy as np
-from math import sin, cos
+from math import sin, cos, tan
 
-TRANSFORM_STACK = []
+TRANSFORM_STACK = [np.array([[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]])]
 
 def polypoint2D(point, color):
     """ Função usada para renderizar Polypoint2D. """
@@ -156,40 +156,88 @@ def triangleSet(point, color):
     """ Função usada para renderizar TriangleSet. """
     print("TriangleSet : pontos = {0}".format(point)) # imprime no terminal pontos
 
+    i = 0
+    while i < range(len(point)):
+        p1 = np.array(point[i:i+3]+[1]).T
+        p2 = np.array(point[i+3:i+6]+[1]).T
+        p3 = np.array(point[i+6:i+9]+[1]).T
+
+        print(p1)
+        i += 9
+
+
+
+
 def viewpoint(position, orientation, fieldOfView):
     # 1o
     """ Função usada para renderizar (na verdade coletar os dados) de Viewpoint. """
     print("Viewpoint : position = {0}, orientation = {1}, fieldOfView = {2}".format(position, orientation, fieldOfView)) # imprime no terminal
+    
+    if orientation[0]:
+        orientation_matrix = np.array([[1, 0, 0],
+                                    [0, cos(fieldOfView), -sin(fieldOfView)],
+                                    [0, sin(fieldOfView), cos(fieldOfView)]])
+    elif orientation[1]:
+        orientation_matrix = np.array([[cos(fieldOfView), 0, sin(fieldOfView)],
+                                    [0, 1, 0],
+                                    [-sin(fieldOfView), 0, cos(fieldOfView)]])
+    elif orientation[2]:
+        orientation_matrix = np.array([[cos(fieldOfView), -sin(fieldOfView), 0],
+                                    [sin(fieldOfView), cos(fieldOfView), 0],
+                                    [0, 0, 1]])
+    
+    position_matrix = np.array([[1, 0, 0, -position[0]],
+                                   [0, 1, 0, -position[1]],
+                                   [0, 0, 1, -position[2]],
+                                   [0, 0, 0, 1]])
+
+    look_at_matrix = np.dot(orientation_matrix, position_matrix)
+
+    aspect = LARGURA/ALTURA
+    near = 0.5
+    far = 100
+
+    top = near * tan(fieldOfView)
+    bottom = -top
+    right = top*aspect
+    left = -right
+
+
+    perspective_matrix = np.array([[near/right, 0, 0, 0],
+                                  [0, near/top, 0, 0],
+                                  [0, 0, -(far+near)/(far-near), -(2*far*near)/(far-near)],
+                                  [0, 0, -1, 0]])
+
+    TRANSFORM_STACK.append(np.dot(look_at_matrix, TRANSFORM_STACK[-1]))
+    TRANSFORM_STACK.append(np.dot(perspective_matrix, TRANSFORM_STACK[-1]))
+
+
 
 def transform(translation, scale, rotation):
     # 1o
     """ Função usada para renderizar (na verdade coletar os dados) de Transform. """
-    #print("Transform : ", end = '')
-    print("Transform call ", end="")
+    print("Transform : ", end = '')
     
     if translation != [0,0,0]:
-        print("translation")
-        #print("translation = {0} ".format(translation), end = '') # imprime no terminal
+        print("translation = {0} ".format(translation), end = ' ') # imprime no terminal
         translation_matrix = np.array([[1, 0, 0, translation[0]],
                                        [0, 1, 0, translation[1]],
                                        [0, 0, 1, translation[2]],
                                        [0, 0, 0, 1]])
-        TRANSFORM_STACK.append(translation_matrix)
+        TRANSFORM_STACK.append(np.dot(translation_matrix, TRANSFORM_STACK[-1]))
         
 
     if scale != [1,1,1]:
-        print("scale")
-        #print("scale = {0} ".format(scale), end = '') # imprime no terminal
+        print("scale = {0} ".format(scale), end = ' ') # imprime no terminal
         scale_matrix = np.array([[scale[0], 0, 0, 0],
                                  [0, scale[1], 0, 0],
                                  [0, 0, scale[2], 0],
                                  [0, 0, 0, 1]])
-        TRANSFORM_STACK.append(scale_matrix)
+        TRANSFORM_STACK.append(np.dot(scale_matrix, TRANSFORM_STACK[-1]))
 
     if rotation != [0,0,1,0]:
-        print("rotation")
         angle = rotation[3]
-        #print("rotation = {0} ".format(rotation), end = '') # imprime no terminal
+        print("rotation = {0} ".format(rotation), end = ' ') # imprime no terminal
         if rotation[0]:
             rotation_matrix = np.array([[1, 0, 0],
                                        [0, cos(angle), -sin(angle)],
@@ -202,7 +250,7 @@ def transform(translation, scale, rotation):
             rotation_matrix = np.array([[cos(angle), -sin(angle), 0],
                                        [sin(angle), cos(angle), 0],
                                        [0, 0, 1]])
-        TRANSFORM_STACK.append(rotation_matrix)
+        TRANSFORM_STACK.append(np.dot(rotation_matrix, TRANSFORM_STACK[-1]))
 
     print("")
 
@@ -281,6 +329,8 @@ if __name__ == '__main__':
         window.image_saver = gpu.GPU.save_image # pasa a função para salvar imagens
         window.preview(gpu.GPU._frame_buffer) # mostra janela de visualização
 
+    '''
     for m in TRANSFORM_STACK:
         print(m)
         print("")
+    '''
