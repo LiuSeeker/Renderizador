@@ -174,17 +174,20 @@ def viewpoint(position, orientation, fieldOfView):
     print("Viewpoint : position = {0}, orientation = {1}, fieldOfView = {2}".format(position, orientation, fieldOfView)) # imprime no terminal
     
     if orientation[0]:
-        orientation_matrix = np.array([[1, 0, 0],
-                                    [0, cos(fieldOfView), -sin(fieldOfView)],
-                                    [0, sin(fieldOfView), cos(fieldOfView)]])
+        orientation_matrix = np.array([[1, 0, 0, 0],
+                                    [0, cos(fieldOfView), -sin(fieldOfView), 0],
+                                    [0, sin(fieldOfView), cos(fieldOfView), 0],
+                                    [0, 0, 0, 1]])
     elif orientation[1]:
-        orientation_matrix = np.array([[cos(fieldOfView), 0, sin(fieldOfView)],
-                                    [0, 1, 0],
-                                    [-sin(fieldOfView), 0, cos(fieldOfView)]])
+        orientation_matrix = np.array([[cos(fieldOfView), 0, sin(fieldOfView), 0],
+                                    [0, 1, 0, 0],
+                                    [-sin(fieldOfView), 0, cos(fieldOfView), 0]
+                                    [0, 0, 0, 1]])
     elif orientation[2]:
-        orientation_matrix = np.array([[cos(fieldOfView), -sin(fieldOfView), 0],
-                                    [sin(fieldOfView), cos(fieldOfView), 0],
-                                    [0, 0, 1]])
+        orientation_matrix = np.array([[cos(fieldOfView), -sin(fieldOfView), 0, 0],
+                                    [sin(fieldOfView), cos(fieldOfView), 0, 0],
+                                    [0, 0, 1, 0]
+                                    [0, 0, 0, 1]])
     
     position_matrix = np.array([[1, 0, 0, -position[0]],
                                    [0, 1, 0, -position[1]],
@@ -239,17 +242,20 @@ def transform(translation, scale, rotation):
         angle = rotation[3]
         print("rotation = {0} ".format(rotation), end = ' ') # imprime no terminal
         if rotation[0]:
-            rotation_matrix = np.array([[1, 0, 0],
-                                       [0, cos(angle), -sin(angle)],
-                                       [0, sin(angle), cos(angle)]])
+            rotation_matrix = np.array([[1, 0, 0, 0],
+                                       [0, cos(angle), -sin(angle), 0],
+                                       [0, sin(angle), cos(angle), 0],
+                                       [0, 0, 0, 1]])
         elif rotation[1]:
-            rotation_matrix = np.array([[cos(angle), 0, sin(angle)],
-                                       [0, 1, 0],
-                                       [-sin(angle), 0, cos(angle)]])
+            rotation_matrix = np.array([[cos(angle), 0, sin(angle), 0],
+                                       [0, 1, 0, 0],
+                                       [-sin(angle), 0, cos(angle), 0],
+                                       [0, 0, 0, 1]])
         elif rotation[2]:
-            rotation_matrix = np.array([[cos(angle), -sin(angle), 0],
-                                       [sin(angle), cos(angle), 0],
-                                       [0, 0, 1]])
+            rotation_matrix = np.array([[cos(angle), -sin(angle), 0, 0],
+                                       [sin(angle), cos(angle), 0, 0],
+                                       [0, 0, 1 ,0],
+                                       [0, 0, 0, 1]])
         TRANSFORM_STACK.append(np.dot(rotation_matrix, TRANSFORM_STACK[-1]))
 
     print("")
