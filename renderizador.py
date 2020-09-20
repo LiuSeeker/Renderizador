@@ -32,7 +32,7 @@ def polypoint2D(point, color):
             n_points *= 2
         
         # Preenche os pixels
-        for k in range(n_points):
+        for _ in range(n_points):
             gpu.GPU.set_pixel(int(point[i]), int(point[i+1]), int(255/n_points), 0, 0)
             if split_h:
                 gpu.GPU.set_pixel(int(point[i])-1, int(point[i+1]), int(255/n_points), 0, 0)
@@ -122,9 +122,9 @@ def triangleSet2D(vertices, color):
     Yl=[y0,y1,y2]
     Yl=sorted(Yl)
 
-    linha0=[x1-x0,y1-y0]
-    linha1=[x2-x1,y2-y1]
-    linha2=[x0-x2,y0-y2]
+    #linha0=[x1-x0,y1-y0]
+    #linha1=[x2-x1,y2-y1]
+    #linha2=[x0-x2,y0-y2]
     #print(linha0)
 
 
@@ -167,12 +167,19 @@ def triangleSet(point, color):
     print("TriangleSet : pontos = {0}".format(point)) # imprime no terminal pontos
 
     i = 0
-    while i < range(len(point)):
-        p1 = np.array(point[i:i+3]+[1]).T
+    while i < len(point):
+        p1 = np.array(point[i:i+3]+[1])
         p2 = np.array(point[i+3:i+6]+[1]).T
         p3 = np.array(point[i+6:i+9]+[1]).T
 
-        print(p1)
+        new_p1 = np.dot(TRANSFORM_STACK[-1], p1)
+        new_p2 = np.dot(TRANSFORM_STACK[-1], p2)
+        new_p3 = np.dot(TRANSFORM_STACK[-1], p3)
+
+        vertices = np.concatenate((new_p1[0:3],new_p2[0:3],new_p3[0:3]), axis=None)
+        
+        triangleSet2D(vertices, color)
+
         i += 9
 
 
@@ -191,12 +198,12 @@ def viewpoint(position, orientation, fieldOfView):
     elif orientation[1]:
         orientation_matrix = np.array([[cos(fieldOfView), 0, sin(fieldOfView), 0],
                                     [0, 1, 0, 0],
-                                    [-sin(fieldOfView), 0, cos(fieldOfView), 0]
+                                    [-sin(fieldOfView), 0, cos(fieldOfView), 0],
                                     [0, 0, 0, 1]])
     elif orientation[2]:
         orientation_matrix = np.array([[cos(fieldOfView), -sin(fieldOfView), 0, 0],
                                     [sin(fieldOfView), cos(fieldOfView), 0, 0],
-                                    [0, 0, 1, 0]
+                                    [0, 0, 1, 0],
                                     [0, 0, 0, 1]])
     
     position_matrix = np.array([[1, 0, 0, -position[0]],
