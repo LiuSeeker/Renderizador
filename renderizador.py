@@ -10,7 +10,11 @@ import gpu          # Simula os recursos de uma GPU
 import numpy as np
 from math import sin, cos, tan
 
-TRANSFORM_STACK = [np.array([[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]])]
+TRANSFORM_STACK = []
+ACTUAL = np.array([[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]])
+
+TRANSFORM_STACK.append(ACTUAL)
+
 
 def polypoint2D(point, color):
     """ Função usada para renderizar Polypoint2D. """
@@ -20,7 +24,6 @@ def polypoint2D(point, color):
     while i < len(point): #(percorre de 2 em 2 coordenadas (ponto)
         split_h = False
         split_v = False
-        
     
         # Conta se ta entre pixels
         n_points = 1
@@ -61,10 +64,6 @@ def polyline2D(lineSegments, color):
         y0=lineSegments[1]
         y1=lineSegments[3]
         
-    #print(x0,y0)
-    #print(x1,y1)
-
-
     dx = abs(x1 - x0)
     dy = abs(y1 - y0)
     x, y = x0, y0
@@ -111,21 +110,10 @@ def triangleSet2D(vertices, color):
     x2=vertices[4]
     y2=vertices[5]
 
-    #print(x0,y0)
-    #print(x1,y1)
-    #print(x2,y2)
-
-
-
     Xl=[x0,x1,x2]
     Xl=sorted(Xl)
     Yl=[y0,y1,y2]
     Yl=sorted(Yl)
-
-    #linha0=[x1-x0,y1-y0]
-    #linha1=[x2-x1,y2-y1]
-    #linha2=[x0-x2,y0-y2]
-    #print(linha0)
 
 
     N0=[y1-y0,-(x1-x0)]
@@ -148,8 +136,6 @@ def triangleSet2D(vertices, color):
             if(L0>0 and L1>0 and L2>0):
                 polypoint2D([x,y],color)
 
-    #print("/////////////////")
-
 
 def triangleSet(point, color):
     # 2o 
@@ -168,7 +154,7 @@ def triangleSet(point, color):
 
     i = 0
     while i < len(point):
-        p1 = np.array(point[i:i+3]+[1])
+        p1 = np.array(point[i:i+3]+[1]).T
         p2 = np.array(point[i+3:i+6]+[1]).T
         p3 = np.array(point[i+6:i+9]+[1]).T
 
@@ -177,12 +163,11 @@ def triangleSet(point, color):
         new_p3 = np.dot(TRANSFORM_STACK[-1], p3)
 
         vertices = np.concatenate((new_p1[0:3],new_p2[0:3],new_p3[0:3]), axis=None)
-        
+        print(vertices)
         triangleSet2D(vertices, color)
 
+        
         i += 9
-
-
 
 
 def viewpoint(position, orientation, fieldOfView):
@@ -190,21 +175,25 @@ def viewpoint(position, orientation, fieldOfView):
     """ Função usada para renderizar (na verdade coletar os dados) de Viewpoint. """
     print("Viewpoint : position = {0}, orientation = {1}, fieldOfView = {2}".format(position, orientation, fieldOfView)) # imprime no terminal
     
+    
     if orientation[0]:
         orientation_matrix = np.array([[1, 0, 0, 0],
-                                    [0, cos(fieldOfView), -sin(fieldOfView), 0],
-                                    [0, sin(fieldOfView), cos(fieldOfView), 0],
+                                    [0, cos(orientation[3]), -sin(orientation[3]), 0],
+                                    [0, sin(orientation[3]), cos(orientation[3]), 0],
                                     [0, 0, 0, 1]])
     elif orientation[1]:
-        orientation_matrix = np.array([[cos(fieldOfView), 0, sin(fieldOfView), 0],
+        orientation_matrix = np.array([[cos(orientation[3]), 0, sin(orientation[3]), 0],
                                     [0, 1, 0, 0],
-                                    [-sin(fieldOfView), 0, cos(fieldOfView), 0],
+                                    [-sin(orientation[3]), 0, cos(orientation[3]), 0],
                                     [0, 0, 0, 1]])
     elif orientation[2]:
-        orientation_matrix = np.array([[cos(fieldOfView), -sin(fieldOfView), 0, 0],
-                                    [sin(fieldOfView), cos(fieldOfView), 0, 0],
+        orientation_matrix = np.array([[cos(orientation[3]), -sin(orientation[3]), 0, 0],
+                                    [sin(orientation[3]), cos(orientation[3]), 0, 0],
                                     [0, 0, 1, 0],
                                     [0, 0, 0, 1]])
+
+
+                                    
     
     position_matrix = np.array([[1, 0, 0, -position[0]],
                                    [0, 1, 0, -position[1]],
@@ -212,6 +201,9 @@ def viewpoint(position, orientation, fieldOfView):
                                    [0, 0, 0, 1]])
 
     look_at_matrix = np.dot(orientation_matrix, position_matrix)
+
+
+  
 
     aspect = LARGURA/ALTURA
     near = 0.5
@@ -223,10 +215,12 @@ def viewpoint(position, orientation, fieldOfView):
     left = -right
 
 
+
     perspective_matrix = np.array([[near/right, 0, 0, 0],
                                   [0, near/top, 0, 0],
                                   [0, 0, -(far+near)/(far-near), -(2*far*near)/(far-near)],
                                   [0, 0, -1, 0]])
+
 
     TRANSFORM_STACK.append(np.dot(look_at_matrix, TRANSFORM_STACK[-1]))
     TRANSFORM_STACK.append(np.dot(perspective_matrix, TRANSFORM_STACK[-1]))
@@ -254,6 +248,7 @@ def transform(translation, scale, rotation):
                                        [0, 0, 1, translation[2]],
                                        [0, 0, 0, 1]])
         TRANSFORM_STACK.append(np.dot(translation_matrix, TRANSFORM_STACK[-1]))
+
         
 
     if scale != [1,1,1]:
@@ -262,7 +257,10 @@ def transform(translation, scale, rotation):
                                  [0, scale[1], 0, 0],
                                  [0, 0, scale[2], 0],
                                  [0, 0, 0, 1]])
+
+        
         TRANSFORM_STACK.append(np.dot(scale_matrix, TRANSFORM_STACK[-1]))
+
 
     if rotation != [0,0,1,0]:
         angle = rotation[3]
@@ -293,6 +291,9 @@ def _transform():
     # deverá recuperar a matriz de transformação dos modelos do mundo da estrutura de
     # pilha implementada.
 
+    ACTUAL=TRANSFORM_STACK.pop()
+    
+
     # O print abaixo é só para vocês verificarem o funcionamento, deve ser removido.
     print("Saindo de Transform")
 
@@ -305,6 +306,7 @@ def triangleStripSet(point, stripCount, color):
     # coordenada z do primeiro ponto. Já point[3] é a coordenada x do segundo ponto e assim
     # por diante. No TriangleStripSet a quantidade de vértices a serem usados é informado
     # em uma lista chamada stripCount (perceba que é uma lista).
+    #print(stripCount)
 
     # O print abaixo é só para vocês verificarem o funcionamento, deve ser removido.
     print("TriangleStripSet : pontos = {0} ".format(point), end = '') # imprime no terminal pontos
@@ -341,7 +343,7 @@ def box(size, color):
     print("Box : size = {0}".format(size)) # imprime no terminal pontos
 
 
-LARGURA = 30
+LARGURA = 40
 ALTURA = 20
 
    
@@ -352,7 +354,7 @@ if __name__ == '__main__':
     width = LARGURA
     height = ALTURA
 
-    x3d_file = "exemplo4.x3d"
+    x3d_file = "mamus.x3d"
     image_file = "tela.png"
 
     # Tratando entrada de parâmetro
