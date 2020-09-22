@@ -24,8 +24,18 @@ COORDENADAS_TELA = np.array([[LARGURA/2, 0, 0, LARGURA/2],
                              [0, 0, 1, 0],
                              [0, 0, 0, 1]])
 
-LOOK_AT_MATRIX = None
-PERSPECTIVE_MATRIX = None
+def norm_array_from_matrix(matrix):
+    mat_t = matrix.T
+    new_mat = np.empty([3,4])
+    for i in range(len(mat_t)):
+        big = -9999
+        for e in mat_t[i]:
+            if e > big:
+                big = e
+        new_mat[i] = mat_t[i]/big
+    
+    return new_mat.T
+
 
 def polypoint2D(point, color):
     """ Função usada para renderizar Polypoint2D. """
@@ -169,19 +179,14 @@ def triangleSet(point, color):
         p2 = np.array(point[i+3:i+6]+[1]).T
         p3 = np.array(point[i+6:i+9]+[1]).T
 
-        
         new_p1 = np.dot(TRANSFORM_STACK[-1], p1)
         new_p2 = np.dot(TRANSFORM_STACK[-1], p2)
         new_p3 = np.dot(TRANSFORM_STACK[-1], p3)
 
-        
 
         transform_triangle_matrix = np.array([new_p1, new_p2, new_p3]).T
 
-        print("transform_triangle_matrix")
-        print(transform_triangle_matrix)
-
-        norm_triangle_matrix = transform_triangle_matrix / new_p3[-1]
+        norm_triangle_matrix = norm_array_from_matrix(transform_triangle_matrix)
 
         coord_x_norm = np.dot(COORDENADAS_TELA, norm_triangle_matrix).T
 
@@ -189,15 +194,13 @@ def triangleSet(point, color):
         vertices = np.concatenate((coord_x_norm[0][0:2],coord_x_norm[1][0:2],coord_x_norm[2][0:2]), axis=None)
         #print("Vertices")
         #print(vertices)
-        #triangleSet2D(vertices, color)
+        triangleSet2D(vertices, color)
 
         
         i += 9
 
 
 def viewpoint(position, orientation, fieldOfView):
-    global LOOK_AT_MATRIX
-    global PERSPECTIVE_MATRIX
     # 1o
     """ Função usada para renderizar (na verdade coletar os dados) de Viewpoint. """
     print("Viewpoint : position = {0}, orientation = {1}, fieldOfView = {2}".format(position, orientation, fieldOfView)) # imprime no terminal
@@ -227,7 +230,7 @@ def viewpoint(position, orientation, fieldOfView):
                                    [0, 0, 1, -position[2]],
                                    [0, 0, 0, 1]])
 
-    LOOK_AT_MATRIX = np.dot(orientation_matrix, position_matrix)
+    look_at_matrix = np.dot(orientation_matrix, position_matrix)
 
 
   
@@ -243,14 +246,14 @@ def viewpoint(position, orientation, fieldOfView):
 
 
 
-    PERSPECTIVE_MATRIX = np.array([[near/right, 0, 0, 0],
+    perspective_matrix = np.array([[near/right, 0, 0, 0],
                                   [0, near/top, 0, 0],
                                   [0, 0, -(far+near)/(far-near), -(2*far*near)/(far-near)],
                                   [0, 0, -1, 0]])
 
 
-    #TRANSFORM_STACK.append(np.dot(look_at_matrix, TRANSFORM_STACK[-1]))
-    #TRANSFORM_STACK.append(np.dot(perspective_matrix, TRANSFORM_STACK[-1]))
+    TRANSFORM_STACK.append(np.dot(look_at_matrix, TRANSFORM_STACK[-1]))
+    TRANSFORM_STACK.append(np.dot(perspective_matrix, TRANSFORM_STACK[-1]))
 
 
 
@@ -266,7 +269,7 @@ def transform(translation, scale, rotation):
     # modelos do mundo em alguma estrutura de pilha.
 
     # O print abaixo é só para vocês verificarem o funcionamento, deve ser removido.
-    print("Transform : t: {} ; s: {} ; r: {}".format(translation, scale, rotation))
+    print("Transform : t: {} ; s: {} ; r: {}".format(translation, scale, rotation), end= "")
     
     translation_matrix = np.array([[1, 0, 0, translation[0]],
                                        [0, 1, 0, translation[1]],
@@ -295,7 +298,7 @@ def transform(translation, scale, rotation):
 
     m1 = np.dot(translation_matrix, scale_matrix)
     m2 = np.dot(m1, rotation_matrix)
-    TRANSFORM_STACK.append(np.dot(m2, TRANSFORM_STACK[-1]))
+    TRANSFORM_STACK.append(np.dot(TRANSFORM_STACK[-1], m2))
 
     print("")
 
@@ -308,7 +311,7 @@ def _transform():
     print("Saindo de Transform. Len stack: {}".format(len(TRANSFORM_STACK)))
     #print(len(TRANSFORM_STACK))
 
-    ACTUAL=TRANSFORM_STACK.pop()
+    TRANSFORM_STACK.pop()
     
 
     # O print abaixo é só para vocês verificarem o funcionamento, deve ser removido.
@@ -370,7 +373,7 @@ if __name__ == '__main__':
     width = LARGURA
     height = ALTURA
 
-    x3d_file = "teste3.x3d"
+    x3d_file = "exemplo4.x3d"
     image_file = "tela.png"
 
     # Tratando entrada de parâmetro
