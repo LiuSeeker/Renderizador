@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<X3D>
+  <Scene>
+    <Viewpoint position="1 2 4"/>
+    <Transform translation="0 0 0">
+      <Shape>
+        <TriangleSet>
+          <Coordinate point='-1 -1 0 1 -1 0 0 1 0'/>
+        </TriangleSet>
+        <Appearance>
+          <Material diffuseColor='1 0 0'/>
+        </Appearance>
+      </Shape>
+    </Transform>
+    <Transform scale="2 2 2">
+      <Transform translation="1 1 0">
+        <Shape>
+          <TriangleSet>
+            <Coordinate point='-1 -1 -0.01 1 -1 -0.01 0 1 -0.01'/>
+          </TriangleSet>
+          <Appearance>
+            <Material diffuseColor='0 0 1'/>
+          </Appearance>
+        </Shape>
+      </Transform>
+    </Transform>
+  </Scene>
+</X3D>
