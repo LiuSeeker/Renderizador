@@ -319,6 +319,23 @@ def _transform():
 
 def triangleStripSet(point, stripCount, color):
     """ Função usada para renderizar TriangleStripSet. """
+    point_index=0
+    for i in range(int(stripCount[0]-2)):
+        point1=point[point_index:point_index+3]
+        point2=point[point_index+3:point_index+6]
+        point3=point[point_index+6:point_index+9]
+        
+        if(point_index%2==0):
+            pointList=point1+point2+point3
+        else:
+            pointList=point2+point1+point3
+
+        point_index+=3
+        triangleSet(pointList,color)
+
+
+
+
     # A função triangleStripSet é usada para desenhar tiras de triângulos interconectados,
     # você receberá as coordenadas dos pontos no parâmetro point, esses pontos são uma
     # lista de pontos x, y, e z sempre na ordem. Assim point[0] é o valor da coordenada x
@@ -329,10 +346,11 @@ def triangleStripSet(point, stripCount, color):
     #print(stripCount)
 
     # O print abaixo é só para vocês verificarem o funcionamento, deve ser removido.
-    print("TriangleStripSet : pontos = {0} ".format(point), end = '') # imprime no terminal pontos
+    #print("TriangleStripSet : pontos = {0} ".format(point), end = '') # imprime no terminal pontos
     for i, strip in enumerate(stripCount):
-        print("strip[{0}] = {1} ".format(i, strip), end = '') # imprime no terminal
-    print("")
+        pass
+        #print("strip[{0}] = {1} ".format(i, strip), end = '') # imprime no terminal
+    #print("")
 
 def indexedTriangleStripSet(point, index, color):
     """ Função usada para renderizar IndexedTriangleStripSet. """
@@ -373,7 +391,7 @@ if __name__ == '__main__':
     width = LARGURA
     height = ALTURA
 
-    x3d_file = "exemplo4.x3d"
+    x3d_file = "exemplo5.x3d"
     image_file = "tela.png"
 
     # Tratando entrada de parâmetro
