@@ -16,8 +16,8 @@ ACTUAL = np.array([[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]])
 
 TRANSFORM_STACK.append(ACTUAL)
 
-LARGURA = 800
-ALTURA = 400
+LARGURA = 400
+ALTURA = 200
 
 COORDENADAS_TELA = np.array([[LARGURA/2, 0, 0, LARGURA/2],
                              [0, -ALTURA/2, 0, ALTURA/2],
@@ -313,14 +313,15 @@ def _transform():
 
     TRANSFORM_STACK.pop()
     
-
     # O print abaixo é só para vocês verificarem o funcionamento, deve ser removido.
     
 
 def triangleStripSet(point, stripCount, color):
     """ Função usada para renderizar TriangleStripSet. """
+    print("TriangleStripSet : pontos = {0} ".format(point), end = '')
+
     point_index=0
-    for i in range(int(stripCount[0]-2)):
+    for _ in range(int(stripCount[0]-2)):
         point1=point[point_index:point_index+3]
         point2=point[point_index+3:point_index+6]
         point3=point[point_index+6:point_index+9]
@@ -334,8 +335,6 @@ def triangleStripSet(point, stripCount, color):
         triangleSet(pointList,color)
 
 
-
-
     # A função triangleStripSet é usada para desenhar tiras de triângulos interconectados,
     # você receberá as coordenadas dos pontos no parâmetro point, esses pontos são uma
     # lista de pontos x, y, e z sempre na ordem. Assim point[0] é o valor da coordenada x
@@ -346,10 +345,10 @@ def triangleStripSet(point, stripCount, color):
     #print(stripCount)
 
     # O print abaixo é só para vocês verificarem o funcionamento, deve ser removido.
-    #print("TriangleStripSet : pontos = {0} ".format(point), end = '') # imprime no terminal pontos
-    for i, strip in enumerate(stripCount):
-        pass
-        #print("strip[{0}] = {1} ".format(i, strip), end = '') # imprime no terminal
+     # imprime no terminal pontos
+    #for i, strip in enumerate(stripCount):
+    #    pass
+    #    print("strip[{0}] = {1} ".format(i, strip), end = '') # imprime no terminal
     #print("")
 
 def indexedTriangleStripSet(point, index, color):
@@ -367,11 +366,29 @@ def indexedTriangleStripSet(point, index, color):
     
     # O print abaixo é só para vocês verificarem o funcionamento, deve ser removido.
     print("IndexedTriangleStripSet : pontos = {0}, index = {1}".format(point, index)) # imprime no terminal pontos
+    #0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, -1.0
+
+    dict_point = {}
+
+    for i in range(len(index)-1):
+        dict_point[i] = point[3*i:3*(i+1)]
+
+
+    for i in range(len(index)-3):
+        point1 = dict_point[index[i]]
+        point2 = dict_point[index[i+1]]
+        point3 = dict_point[index[i+2]]
+
+        if(i%2==0):
+            pointList=point1+point2+point3
+        else:
+            pointList=point2+point1+point3
+        triangleSet(pointList,color)
 
 def box(size, color):
     """ Função usada para renderizar Boxes. """
     # A função box é usada para desenhar paralelepípedos na cena. O Box é centrada no
-    # (0, 0, 0) no sistema de coordenadas local e alinhado com os eixos de coordenadas
+    # (0, 0, 0)  no sistema de coordenadas local e alinhado com os eixos de coordenadas
     # locais. O argumento size especifica as extensões da caixa ao longo dos eixos X, Y
     # e Z, respectivamente, e cada valor do tamanho deve ser maior que zero. Para desenha
     # essa caixa você vai provavelmente querer tesselar ela em triângulos, para isso
@@ -379,11 +396,33 @@ def box(size, color):
 
     # O print abaixo é só para vocês verificarem o funcionamento, deve ser removido.
     print("Box : size = {0}".format(size)) # imprime no terminal pontos
+    # 8 pontos
+    # 12 triangulos
 
+    ps = {}
 
+    x = size[0]/2
+    y = size[1]/2
+    z = size[2]/2
 
+    #size = 1
 
-   
+    ps[0] = [-x, y, z]
+    ps[1] = [-x, -y, z]
+    ps[2] = [x, y, z]
+    ps[3] = [x, -y, z]
+    ps[4] = [x, y, -z]
+    ps[5] = [x, -y, -z]
+    ps[6] = [-x, y, -z]
+    ps[7] = [-x, -y, -z]
+
+    triangleStripSet(ps[0]+ps[1]+ps[2]+ps[3], [4], color)
+    triangleStripSet(ps[2]+ps[3]+ps[4]+ps[5], [4], color)
+    triangleStripSet(ps[4]+ps[5]+ps[6]+ps[7], [4], color)
+    triangleStripSet(ps[6]+ps[7]+ps[0]+ps[1], [4], color)
+    triangleStripSet(ps[6]+ps[0]+ps[4]+ps[2], [4], color)
+    triangleStripSet(ps[1]+ps[7]+ps[3]+ps[5], [4], color)
+    
 
 if __name__ == '__main__':
 
@@ -391,7 +430,7 @@ if __name__ == '__main__':
     width = LARGURA
     height = ALTURA
 
-    x3d_file = "exemplo5.x3d"
+    x3d_file = "exemplo6.x3d"
     image_file = "tela.png"
 
     # Tratando entrada de parâmetro
