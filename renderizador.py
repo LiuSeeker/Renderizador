@@ -171,7 +171,7 @@ def triangleSet(point, color):
     # triângulo, e assim por diante.
     
     # O print abaixo é só para vocês verificarem o funcionamento, deve ser removido.
-    print("TriangleSet : pontos = {0}".format(point)) # imprime no terminal pontos
+
 
     i = 0
     while i < len(point):
@@ -203,7 +203,7 @@ def triangleSet(point, color):
 def viewpoint(position, orientation, fieldOfView):
     # 1o
     """ Função usada para renderizar (na verdade coletar os dados) de Viewpoint. """
-    print("Viewpoint : position = {0}, orientation = {1}, fieldOfView = {2}".format(position, orientation, fieldOfView)) # imprime no terminal
+    #print("Viewpoint : position = {0}, orientation = {1}, fieldOfView = {2}".format(position, orientation, fieldOfView)) # imprime no terminal
     
     
     if orientation[0]:
@@ -269,7 +269,7 @@ def transform(translation, scale, rotation):
     # modelos do mundo em alguma estrutura de pilha.
 
     # O print abaixo é só para vocês verificarem o funcionamento, deve ser removido.
-    print("Transform : t: {} ; s: {} ; r: {}".format(translation, scale, rotation), end= "")
+    #print("Transform : t: {} ; s: {} ; r: {}".format(translation, scale, rotation), end= "")
     
     translation_matrix = np.array([[1, 0, 0, translation[0]],
                                        [0, 1, 0, translation[1]],
@@ -300,7 +300,6 @@ def transform(translation, scale, rotation):
     m2 = np.dot(m1, rotation_matrix)
     TRANSFORM_STACK.append(np.dot(TRANSFORM_STACK[-1], m2))
 
-    print("")
 
 def _transform():
     """ Função usada para renderizar (na verdade coletar os dados) de Transform. """
@@ -308,7 +307,7 @@ def _transform():
     # grafo de cena. Não são passados valores, porém quando se sai de um nó transform se
     # deverá recuperar a matriz de transformação dos modelos do mundo da estrutura de
     # pilha implementada.
-    print("Saindo de Transform. Len stack: {}".format(len(TRANSFORM_STACK)))
+    #print("Saindo de Transform. Len stack: {}".format(len(TRANSFORM_STACK)))
     #print(len(TRANSFORM_STACK))
 
     TRANSFORM_STACK.pop()
@@ -318,7 +317,7 @@ def _transform():
 
 def triangleStripSet(point, stripCount, color):
     """ Função usada para renderizar TriangleStripSet. """
-    print("TriangleStripSet : pontos = {0} ".format(point), end = '')
+    #print("TriangleStripSet : pontos = {0} ".format(point), end = '')
 
     point_index=0
     for _ in range(int(stripCount[0]-2)):
@@ -365,7 +364,7 @@ def indexedTriangleStripSet(point, index, color):
     # depois 2, 3 e 4, e assim por diante.
     
     # O print abaixo é só para vocês verificarem o funcionamento, deve ser removido.
-    print("IndexedTriangleStripSet : pontos = {0}, index = {1}".format(point, index)) # imprime no terminal pontos
+    #print("IndexedTriangleStripSet : pontos = {0}, index = {1}".format(point, index)) # imprime no terminal pontos
     #0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, -1.0
 
     dict_point = {}
@@ -383,6 +382,7 @@ def indexedTriangleStripSet(point, index, color):
             pointList=point1+point2+point3
         else:
             pointList=point2+point1+point3
+
         triangleSet(pointList,color)
 
 def box(size, color):
@@ -395,7 +395,7 @@ def box(size, color):
     # encontre os vértices e defina os triângulos.
 
     # O print abaixo é só para vocês verificarem o funcionamento, deve ser removido.
-    print("Box : size = {0}".format(size)) # imprime no terminal pontos
+    #print("Box : size = {0}".format(size)) # imprime no terminal pontos
     # 8 pontos
     # 12 triangulos
 
@@ -445,16 +445,23 @@ def indexedFaceSet(coord, coordIndex, colorPerVertex, color, colorIndex, texCoor
     # implementadado um método para a leitura de imagens.
     
     # O print abaixo é só para vocês verificarem o funcionamento, deve ser removido.
-    print("IndexedFaceSet : ")
-    if coord:
-        print("\tpontos(x, y, z) = {0}, coordIndex = {1}".format(coord, coordIndex)) # imprime no terminal
-    if colorPerVertex:
-        print("\tcores(r, g, b) = {0}, colorIndex = {1}".format(color, colorIndex)) # imprime no terminal
-    if texCoord:
-        print("\tpontos(u, v) = {0}, texCoordIndex = {1}".format(texCoord, texCoordIndex)) # imprime no terminal
-    if(current_texture):
-        image = gpu.GPU.load_texture(current_texture[0])
-        print("\t Matriz com image = {0}".format(image))
+
+    #print(coord)
+    print(current_color)
+    print(texCoord)
+
+
+    for i in range(0,len(coordIndex)-2,4):
+        p1=coordIndex[i]
+        p2=coordIndex[i+1]
+        p3=coordIndex[i+2]
+        point1=coord[3*p1:3*(p1+1)]
+        point2=coord[3*p2:3*(p2+1)]
+        point3=coord[3*p3:3*(p3+1)]
+        pointList=point1+point2+point3
+        triangleSet(pointList,current_color)
+
+
 
 # Defina o tamanhã da tela que melhor sirva para perceber a renderização
 LARGURA = 400
@@ -464,7 +471,7 @@ if __name__ == '__main__':
     # Valores padrão da aplicação
     width = LARGURA
     height = ALTURA
-    x3d_file = "exemplo4.x3d"
+    x3d_file = "exemplo8.x3d"
     image_file="insper.png"
 
     # Tratando entrada de parâmetro
