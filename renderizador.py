@@ -457,16 +457,15 @@ def indexedFaceSet(coord, coordIndex, colorPerVertex, color, colorIndex, texCoor
         print("\t Matriz com image = {0}".format(image))
 
 # Defina o tamanhã da tela que melhor sirva para perceber a renderização
-LARGURA = 30
-ALTURA = 20
->>>>>>> upstream/master
-
+LARGURA = 400
+ALTURA = 200
 if __name__ == '__main__':
 
     # Valores padrão da aplicação
     width = LARGURA
     height = ALTURA
-    x3d_file = "exemplo6.x3d"
+    x3d_file = "exemplo4.x3d"
+    image_file="insper.png"
 
     # Tratando entrada de parâmetro
     parser = argparse.ArgumentParser(add_help=False)   # parser para linha de comando
