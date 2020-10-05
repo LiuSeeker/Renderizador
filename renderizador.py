@@ -123,13 +123,15 @@ def polyline2D(lineSegments, color):
 
 def triangleSet2D(vertices, color):
     """ Função usada para renderizar TriangleSet2D. """
+
+    len_color = len(color) # Usado para ver se vai interpolar ou não
     
-    x0=vertices[0]
-    y0=vertices[1]
-    x1=vertices[2]
-    y1=vertices[3]
-    x2=vertices[4]
-    y2=vertices[5]
+    x0=vertices[0] # xa
+    y0=vertices[1] # ya
+    x1=vertices[2] # xb
+    y1=vertices[3] # yb
+    x2=vertices[4] # xc
+    y2=vertices[5] # yc
 
     Xl=[x0,x1,x2]
     Xl=sorted(Xl)
@@ -155,7 +157,23 @@ def triangleSet2D(vertices, color):
             L2=V2[0]*N2[0]+V2[1]*N2[1]
 
             if(L0>0 and L1>0 and L2>0):
-                polypoint2D([x,y],color)
+                if len_color == 3:
+                    polypoint2D([x,y],color)
+                elif len_color == 9:
+                    alpha = (-(x-x1)*(y2-y1) + (y-y1)*(x2-x1)) / (-(x0-x1)*(y2-y1) + (y0-y1)*(x2-x1))
+                    beta = (-(x-x2)*(y0-y2) + (y-y2)*(x0-x2)) / (-(x1-x2)*(y0-y2) + (y1-y2)*(x0-x2))
+                    gamma = 1 - alpha - beta
+                    #print("alpha: {}; beta: {}; gamma: {}".format(alpha, beta, gamma))
+                    A = [x * alpha for x in color[0:3]]
+                    B = [x * beta for x in color[3:6]]
+                    C = [x * gamma for x in color[6:9]]
+                    
+                    
+                    colorInterpol = [sum(x) for x in zip(A, B, C)]
+                    polypoint2D([x,y],colorInterpol)
+                else:
+                    raise ValueError("Array 'color' de tamanho {}".format(len_color))
+                
 
 
 def triangleSet(point, color):
@@ -447,10 +465,10 @@ def indexedFaceSet(coord, coordIndex, colorPerVertex, color, colorIndex, texCoor
     # O print abaixo é só para vocês verificarem o funcionamento, deve ser removido.
 
     #print(coord)
-    print(current_color)
-    print(texCoord)
-
-
+    #print(current_color)
+    #print(texCoord)
+    #print("colorPerVertex: {}\ncolor: {}\ncolorIndex: {}".format(colorPerVertex, color, colorIndex))
+    print("texCoord: {}\ntexCoordIndex: {}\ncurrent_texture: {}".format(texCoord, texCoordIndex, current_texture))
     for i in range(0,len(coordIndex)-2,4):
         p1=coordIndex[i]
         p2=coordIndex[i+1]
@@ -459,7 +477,22 @@ def indexedFaceSet(coord, coordIndex, colorPerVertex, color, colorIndex, texCoor
         point2=coord[3*p2:3*(p2+1)]
         point3=coord[3*p3:3*(p3+1)]
         pointList=point1+point2+point3
-        triangleSet(pointList,current_color)
+        
+        if colorPerVertex: # interpolação de cores
+            # Faz a msm coisa dos pontos, só que com as cores.
+            ### Pega o colorIndex (coordIndex) e o color (point) e faz uma lista ...
+            ### ... das cores de cada ponto (equivalente ao pointList)
+            c1=colorIndex[i]
+            c2=colorIndex[i+1]
+            c3=colorIndex[i+2]
+            color1=color[3*c1:3*(c1+1)]
+            color2=color[3*c2:3*(c2+1)]
+            color3=color[3*c3:3*(c3+1)]
+
+            colorList = color1+color2+color3
+            triangleSet(pointList, colorList)
+        else:
+            triangleSet(pointList,current_color)
 
 
 
