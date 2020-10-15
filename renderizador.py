@@ -121,8 +121,12 @@ def polyline2D(lineSegments, color):
     x = gpu.GPU.width//2
     y = gpu.GPU.height//2
 
-def triangleSet2D(vertices, color):
+def triangleSet2D(vertices, color, texList=None, currTex=None):
     """ Função usada para renderizar TriangleSet2D. """
+
+    if texList is not None:
+        img = gpu.GPU.load_texture(currTex[0])
+        w, h, _ = img.shape
 
     len_color = len(color) # Usado para ver se vai interpolar ou não
     
@@ -142,6 +146,8 @@ def triangleSet2D(vertices, color):
     N0=[y1-y0,-(x1-x0)]
     N1=[y2-y1,-(x2-x1)]
     N2=[y0-y2,-(x0-x2)]
+
+    
 
 
 
@@ -164,19 +170,32 @@ def triangleSet2D(vertices, color):
                     beta = (-(x-x2)*(y0-y2) + (y-y2)*(x0-x2)) / (-(x1-x2)*(y0-y2) + (y1-y2)*(x0-x2))
                     gamma = 1 - alpha - beta
                     #print("alpha: {}; beta: {}; gamma: {}".format(alpha, beta, gamma))
-                    A = [x * alpha for x in color[0:3]]
-                    B = [x * beta for x in color[3:6]]
-                    C = [x * gamma for x in color[6:9]]
+                    A = [i * alpha for i in color[0:3]]
+                    B = [i * beta for i in color[3:6]]
+                    C = [i * gamma for i in color[6:9]]
                     
                     
-                    colorInterpol = [sum(x) for x in zip(A, B, C)]
+                    colorInterpol = [sum(k) for k in zip(A, B, C)]
                     polypoint2D([x,y],colorInterpol)
+                elif texList is not None:
+                    alpha = (-(x-x1)*(y2-y1) + (y-y1)*(x2-x1)) / (-(x0-x1)*(y2-y1) + (y0-y1)*(x2-x1))
+                    beta = (-(x-x2)*(y0-y2) + (y-y2)*(x0-x2)) / (-(x1-x2)*(y0-y2) + (y1-y2)*(x0-x2))
+                    gamma = 1 - alpha - beta
+
+                    u, v = np.sum([alpha * texList[0:2], beta * texList[2:4], gamma * texList[4:6]], 0)
+
+                    color = img[int(u*w)][int(v*h)]
+
+                    color = color[0:3]/255
+
+                    polypoint2D([x,y],color)
+
                 else:
                     raise ValueError("Array 'color' de tamanho {}".format(len_color))
                 
 
 
-def triangleSet(point, color):
+def triangleSet(point, color, texList=None, currTex=None):
     # 2o 
     """ Função usada para renderizar TriangleSet. """
     # Nessa função você receberá pontos no parâmetro point, esses pontos são uma lista
@@ -210,9 +229,8 @@ def triangleSet(point, color):
 
 
         vertices = np.concatenate((coord_x_norm[0][0:2],coord_x_norm[1][0:2],coord_x_norm[2][0:2]), axis=None)
-        #print("Vertices")
-        #print(vertices)
-        triangleSet2D(vertices, color)
+        #print("Vertices: {}".format(vertices))
+        triangleSet2D(vertices, color, texList, currTex)
 
         
         i += 9
@@ -467,8 +485,11 @@ def indexedFaceSet(coord, coordIndex, colorPerVertex, color, colorIndex, texCoor
     #print(coord)
     #print(current_color)
     #print(texCoord)
-    #print("colorPerVertex: {}\ncolor: {}\ncolorIndex: {}".format(colorPerVertex, color, colorIndex))
-    print("texCoord: {}\ntexCoordIndex: {}\ncurrent_texture: {}".format(texCoord, texCoordIndex, current_texture))
+    #print("coord: {}\ncoordIndex: {}\n".format(coord, coordIndex))
+    #print("colorPerVertex: {}\ncolor: {}\ncolorIndex: {}\n".format(colorPerVertex, color, colorIndex))
+    #print("texCoord: {}\ntexCoordIndex: {}\ncurrent_texture: {}".format(texCoord, texCoordIndex, current_texture))
+        
+    
     for i in range(0,len(coordIndex)-2,4):
         p1=coordIndex[i]
         p2=coordIndex[i+1]
@@ -477,6 +498,7 @@ def indexedFaceSet(coord, coordIndex, colorPerVertex, color, colorIndex, texCoor
         point2=coord[3*p2:3*(p2+1)]
         point3=coord[3*p3:3*(p3+1)]
         pointList=point1+point2+point3
+        #print("pointList: {}".format(pointList))
         
         if colorPerVertex: # interpolação de cores
             # Faz a msm coisa dos pontos, só que com as cores.
@@ -490,21 +512,37 @@ def indexedFaceSet(coord, coordIndex, colorPerVertex, color, colorIndex, texCoor
             color3=color[3*c3:3*(c3+1)]
 
             colorList = color1+color2+color3
+
             triangleSet(pointList, colorList)
+
+        elif current_texture:
+            t1=texCoordIndex[i]
+            t2=texCoordIndex[i+1]
+            t3=texCoordIndex[i+2]
+            tex1=texCoord[2*t1:2*(t1+1)]
+            tex2=texCoord[2*t2:2*(t2+1)]
+            tex3=texCoord[2*t3:2*(t3+1)]
+
+            texList = np.array(tex1+tex2+tex3)
+
+            #print("texList: {}".format(texList))
+
+            triangleSet(pointList, [], texList, current_texture)
+
         else:
             triangleSet(pointList,current_color)
 
 
 
 # Defina o tamanhã da tela que melhor sirva para perceber a renderização
-LARGURA = 400
-ALTURA = 200
+LARGURA = 800
+ALTURA = 400
 if __name__ == '__main__':
 
     # Valores padrão da aplicação
     width = LARGURA
     height = ALTURA
-    x3d_file = "exemplo8.x3d"
+    x3d_file = "exemplo9.x3d"
     image_file="insper.png"
 
     # Tratando entrada de parâmetro
