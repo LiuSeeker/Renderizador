@@ -184,7 +184,7 @@ def triangleSet2D(vertices, color, texList=None, currTex=None):
 
                     u, v = np.sum([alpha * texList[0:2], beta * texList[2:4], gamma * texList[4:6]], 0)
 
-                    color = img[int(u*w)][int(v*h)]
+                    color = img[int(w-v*w)][int(u*h)]
 
                     color = color[0:3]/255
 
